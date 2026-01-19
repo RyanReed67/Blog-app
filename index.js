@@ -15,6 +15,12 @@ app.get("/", (req, res) => {
 
 app.post("/submit", (req, res) => {
     const {title, content} = req.body;
+    const date = new Date().toLocaleString();
+    posts.push({ 
+        title, 
+        content, 
+        date: date // Store the date here
+    });
     posts.push({title, content});
     res.redirect("/");
 });
