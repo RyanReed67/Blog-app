@@ -19,7 +19,7 @@ app.post("/submit", (req, res) => {
     posts.push({ 
         title, 
         content, 
-        date: date // Store the date here
+        date: date 
     });
     posts.push({title, content});
     res.redirect("/");
