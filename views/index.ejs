@@ -17,6 +17,7 @@
 
 <% posts.forEach((post, index) => { %>
     <div class="post">
+        <p class="post-date">Posted on: <%= post.date %></p>
         <h2><%= post.title %></h2>
         <p><%= post.content %></p>
         
