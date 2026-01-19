@@ -27,16 +27,14 @@ app.post("/submit", (req, res) => {
 
 app.get("/edit/:index", (req, res) => {
     const index = req.params.index;
-    const postToEdit = posts[index]; // Grab the post from the array
-
-    // Check if the post actually exists before rendering
+    const postToEdit = posts[index];
     if (postToEdit) {
         res.render("edit.ejs", { 
-            post: postToEdit,  // This must be named 'post' because you use 'post.title' in EJS
+            post: postToEdit,
             index: index 
         });
     } else {
-        res.redirect("/"); // If index is invalid, send them home
+        res.redirect("/");
     }
 });
 
