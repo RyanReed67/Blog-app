@@ -115,8 +115,14 @@ input[type="text"], textarea {
 .btn-delete {
     background-color: #e74c3c;
     color: white;
-    border: none;
-    cursor: pointer;
+}
+
+.btn-edit:hover {
+    background-color: #27ae60;
+}
+
+.btn-delete:hover {
+    background-color: #c0392b;
 }
 
 @media (max-width: 600px) {
