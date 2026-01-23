@@ -145,4 +145,13 @@ input[type="text"], textarea {
     .btn-edit, .btn-delete {
         width: 100%;
     }
+
+        .actions {
+        flex-direction: column;
+    }
+    
+    .btn-read {
+        margin-left: 0; 
+        width: 100%;    
+    }
 }
