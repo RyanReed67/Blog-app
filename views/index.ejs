@@ -7,33 +7,38 @@
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <form action="/submit" method="POST">
+<form action="/submit" method="POST">
     <input type="text" name="title" placeholder="Title" required>
     <textarea name="content" placeholder="Content" required></textarea>
     <button type="submit" class="btn-publish">Publish</button>
+</form>   
+
+<form action="/search" method="GET" class="search-form">
+    <input type="text" name="query" placeholder="Search stories by title..." required>
+    <button type="submit" class="btn-search">Search</button>
+    <a href="/" class="btn-clear">Clear</a>
 </form>
 
 <hr>
 
-<% posts.forEach((post, index) => { %>
+<% posts.forEach((post) => { %>
     <div class="post">
         <p class="post-date">Posted on: <%= new Date(post.date).toLocaleDateString() %></p>
-        <h2><%= post.title %></h2>
-        <p><%= post.content %></p>
-        
-        <div class="actions">
+        <h2><%= post.title %></h2>     
+        <p>
+            <%= post.content.substring(0, 150) %><%= post.content.length > 150 ? "..." : "" %>
+        </p>
+        <div class="actions">  
             <a href="/edit/<%= post.id %>" class="btn-edit">Edit</a>
-
+            
             <form action="/delete" method="POST" style="display:inline;">
                 <input type="hidden" name="id" value="<%= post.id %>">
                 <button type="submit" class="btn-delete">Delete</button>
             </form>
-        </div>
-    </div>
-<% }); %>
 
-</body>
-</html>
+            <a href="/post/<%= post.id %>" class="btn-read">Read More</a>
+            </div>
+    </div>
 <% }) %>
 
 </body>
