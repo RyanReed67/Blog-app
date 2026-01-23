@@ -26,7 +26,9 @@ async function loadPosts() {
 }
 
 app.get("/", async (req, res) => {
-    try { 
+    try {
+       //posts = await loadPosts(); 
+        
        const result = await db.query('SELECT * FROM "BlogPosts" ORDER BY id DESC');
        res.render("index.ejs", { posts: result.rows });
     } catch (err) {
@@ -48,6 +50,19 @@ app.post("/submit", async (req, res) => {
         console.error(err);
         res.redirect("/");
     }
+});
+
+app.get("/search", async (req, res) => {
+    const searchTerm = req.query.query;
+
+    try {
+        const result = await db.query(
+            'SELECT * FROM "BlogPosts" WHERE title ILIKE $1 ORDER BY id DESC', 
+            [`%${searchTerm}%`]);
+            res.render("index.ejs", {posts: result.rows});
+    } catch (err) {
+        console.error(err);
+    };
 });
 
 app.get("/edit/:id", async (req, res) => {
@@ -93,6 +108,17 @@ app.post("/delete", async (req, res) => {
         res.redirect("/");
     } catch (err) {
         console.error(err);
+        res.redirect("/");
+    }
+});
+
+app.get("/post/:id", async (req, res) => {
+    const id = req.params.id;
+    try {
+        const result = await db.query('SELECT * FROM "BlogPosts" WHERE id = $1', [id]);
+        const post = result.rows[0];
+        res.render("post.ejs", { post: post });
+    } catch (err) {
         res.redirect("/");
     }
 });
