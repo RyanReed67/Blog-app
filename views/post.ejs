@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="btn-clear">← Back to Posts</a>
+        <article class="post" style="margin-top: 20px;">
+            <p class="post-date">Posted on: <%= new Date(post.date).toLocaleDateString() %></p>
+            <h1><%= post.title %></h1>
+            <p><%= post.content %></p>
+        </article>
+    </div>
+</body>
+</html>
