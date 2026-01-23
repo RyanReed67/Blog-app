@@ -20,7 +20,6 @@ app.use(bodyParser.urlencoded({ extended: true}));
 let posts = [];
 
 async function loadPosts() {
-    console.log("hello");
     const result = await db.query('SELECT * FROM "BlogPosts"');
     console.log(result.rows);
     return result.rows;
