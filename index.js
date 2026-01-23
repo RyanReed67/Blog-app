@@ -26,9 +26,7 @@ async function loadPosts() {
 }
 
 app.get("/", async (req, res) => {
-    try {
-       posts = await loadPosts(); 
-        
+    try { 
        const result = await db.query('SELECT * FROM "BlogPosts" ORDER BY id DESC');
        res.render("index.ejs", { posts: result.rows });
     } catch (err) {
