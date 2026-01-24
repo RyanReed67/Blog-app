@@ -9,9 +9,13 @@
 <body>
 <form action="/submit" method="POST">
     <input type="text" name="title" placeholder="Title" required>
+
+    <input type="text" name="authorName" placeholder="Author's Name" required 
+           style="width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px;">
+
     <textarea name="content" placeholder="Content" required></textarea>
     <button type="submit" class="btn-publish">Publish</button>
-</form>   
+</form>
 
 <form action="/search" method="GET" class="search-form">
     <input type="text" name="query" placeholder="Search stories by title..." required>
@@ -24,10 +28,14 @@
 <% posts.forEach((post) => { %>
     <div class="post">
         <p class="post-date">Posted on: <%= new Date(post.date).toLocaleDateString() %></p>
-        <h2><%= post.title %></h2>     
+        <h2><%= post.title %></h2>
+        <p class="post-author">
+            By: <a href="/author/<%= post.author_id %>"><%= post.author_name || "Anonymous" %></a>
+        </p>
         <p>
             <%= post.content.substring(0, 150) %><%= post.content.length > 150 ? "..." : "" %>
         </p>
+        
         <div class="actions">  
             <a href="/edit/<%= post.id %>" class="btn-edit">Edit</a>
             
@@ -37,9 +45,27 @@
             </form>
 
             <a href="/post/<%= post.id %>" class="btn-read">Read More</a>
-            </div>
-    </div>
+            <span class="comment-badge">
+            <%= post.comment_count %> <%= post.comment_count == 1 ? 'Comment' : 'Comments' %>
+        </span>
+        </div>
+
+        <div class="quick-comment">
+            <form action="/comment" method="POST">
+                <input type="hidden" name="postId" value="<%= post.id %>">
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" name="authorName" placeholder="Your Name" required>
+                    
+                    <input type="text" name="commentComment" placeholder="Quick comment..." required>
+                    
+                    <button type="submit" class="btn-publish" style="padding: 6px 12px; font-size: 0.9em;">Post</button>
+                </div>
+            </form>
+        </div>
+        </div>
 <% }) %>
+
+
 
 </body>
 </html>
