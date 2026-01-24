@@ -28,14 +28,18 @@ async function loadPosts() {
 app.get("/", async (req, res) => {
     try {
         const postResult = await db.query(`
-            SELECT "BlogPosts".*, authors.name AS author_name 
+            SELECT "BlogPosts".*, authors.name AS author_name,
+            COUNT(comments.id) AS comment_count 
             FROM "BlogPosts" 
             LEFT JOIN authors ON "BlogPosts".author_id = authors.id 
+            LEFT JOIN comments ON "BlogPosts".id = comments.post_id
+            GROUP BY "BlogPosts".id, authors.name
             ORDER BY "BlogPosts".id DESC
         `);
 
         res.render("index.ejs", { posts: postResult.rows });
     } catch (err) {
+        console.error(err);
         res.send("Error");
     }
 });
@@ -131,10 +135,42 @@ app.post("/delete", async (req, res) => {
 app.get("/post/:id", async (req, res) => {
     const id = req.params.id;
     try {
-        const result = await db.query('SELECT * FROM "BlogPosts" WHERE id = $1', [id]);
+        const result = await db.query(`
+            SELECT "BlogPosts".*, authors.name AS author_name
+            FROM "BlogPosts"
+            JOIN authors ON "BlogPosts".author_id = authors.id
+            WHERE "BlogPosts".id = $1
+            `, [id]
+            );
+            const commentsResult = await db.query(`
+                SELECT * FROM comments WHERE post_id = $1 ORDER BY id DESC`,
+                [id]
+            );
         const post = result.rows[0];
-        res.render("post.ejs", { post: post });
+        if (post) {
+            res.render("post.ejs", { 
+                post: post,
+                comments: commentsResult.rows 
+            });
+        } else {
+            res.redirect("/");
+        }
     } catch (err) {
+        console.error(err);
+        res.redirect("/");
+    }
+});
+
+app.post("/comment", async (req, res) => {
+    const { postId, authorName, commentComment } = req.body;
+    try {
+        await db.query(
+            'INSERT INTO comments (post_id, author_name, comment_text) VALUES ($1, $2, $3)',
+            [postId, authorName, commentComment]
+        );
+        res.redirect(`/post/${postId}`); 
+    } catch (err) {
+        console.error(err);
         res.redirect("/");
     }
 });
@@ -170,9 +206,3 @@ app.get("/author/:id", async (req, res) => {
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
-
-
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-});
-
