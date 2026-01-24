@@ -9,7 +9,7 @@ const db = new pg.Client({
   user: "postgres",
   host: "localhost",
   database: "Blog",
-  password: "",
+  password: "Remington102062",
   port: 5432,
 });
 db.connect();
@@ -27,28 +27,44 @@ async function loadPosts() {
 
 app.get("/", async (req, res) => {
     try {
-       //posts = await loadPosts(); 
-        
-       const result = await db.query('SELECT * FROM "BlogPosts" ORDER BY id DESC');
-       res.render("index.ejs", { posts: result.rows });
+        const postResult = await db.query(`
+            SELECT "BlogPosts".*, authors.name AS author_name 
+            FROM "BlogPosts" 
+            LEFT JOIN authors ON "BlogPosts".author_id = authors.id 
+            ORDER BY "BlogPosts".id DESC
+        `);
+
+        res.render("index.ejs", { posts: postResult.rows });
     } catch (err) {
-        console.error("Error loading posts:", err);
-        res.render("index.ejs", { posts: [] }); 
+        res.send("Error");
     }
 });
 
 app.post("/submit", async (req, res) => {
-    const { title, content } = req.body;
-    
+    const { title, content, authorName } = req.body;
+
     try {
+        let authorResult = await db.query("SELECT id FROM authors WHERE name = $1", [authorName]);
+        let authorId;
+
+        if (authorResult.rows.length > 0) {
+            authorId = authorResult.rows[0].id;
+        } else {
+            const newAuthor = await db.query(
+                "INSERT INTO authors (name) VALUES ($1) RETURNING id", 
+                [authorName]
+            );
+            authorId = newAuthor.rows[0].id;
+        }
         await db.query(
-            'INSERT INTO "BlogPosts" (title, content) VALUES ($1, $2)', 
-            [title, content]
+            'INSERT INTO "BlogPosts" (title, content, author_id) VALUES ($1, $2, $3)',
+            [title, content, authorId]
         );
+
         res.redirect("/");
     } catch (err) {
         console.error(err);
-        res.redirect("/");
+        res.send("Error submitting post.");
     }
 });
 
@@ -122,6 +138,39 @@ app.get("/post/:id", async (req, res) => {
         res.redirect("/");
     }
 });
+
+app.get("/author/:id", async (req, res) => {
+    const authorId = req.params.id;
+
+    try {
+        const authorInfo = await db.query(
+            'SELECT * FROM authors WHERE id = $1',
+            [authorId]
+        );
+
+        const postsResults = await db.query(
+            `SELECT "BlogPosts".*, authors.name AS author_name
+            FROM "BlogPosts"
+            JOIN authors ON "BlogPosts".author_id = authors.id
+            WHERE authors.id = $1
+            ORDER BY "BlogPosts".id DESC`,
+            [authorId]
+        );
+
+        res.render("author.ejs", {
+            authorName: authorInfo.rows[0].name,
+            posts: postsResults.rows
+        });
+    } catch (err) {
+        console.error(err);
+        res.redirect("/");
+    }
+});
+
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});
+
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
