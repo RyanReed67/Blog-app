@@ -81,8 +81,8 @@ app.get("/search", async (req, res) => {
             "BlogPosts".*,
             authors.name AS author_name,
             (CASE 
-            WHEN title ILIKE $1 THEN 1
-            WHEN content ILIKE $1 THEN 2
+            WHEN title ILIKE $1 THEN 2
+            WHEN content ILIKE $1 THEN 1
             ELSE 0
             END) AS search_rank
             FROM "BlogPosts"
