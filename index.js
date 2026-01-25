@@ -138,7 +138,7 @@ app.get("/post/:id", async (req, res) => {
         const result = await db.query(`
             SELECT "BlogPosts".*, authors.name AS author_name
             FROM "BlogPosts"
-            JOIN authors ON "BlogPosts".author_id = authors.id
+            LEFT JOIN authors ON "BlogPosts".author_id = authors.id
             WHERE "BlogPosts".id = $1
             `, [id]
             );
@@ -206,3 +206,4 @@ app.get("/author/:id", async (req, res) => {
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
+
