@@ -76,10 +76,26 @@ app.get("/search", async (req, res) => {
     const searchTerm = req.query.query;
 
     try {
-        const result = await db.query(
-            'SELECT * FROM "BlogPosts" WHERE title ILIKE $1 ORDER BY id DESC', 
-            [`%${searchTerm}%`]);
-            res.render("index.ejs", {posts: result.rows});
+        const result = await db.query(`
+            SELECT
+            "BlogPosts".*,
+            authors.name AS author_name,
+            (CASE 
+            WHEN title ILIKE $1 THEN 1
+            WHEN content ILIKE $1 THEN 2
+            ELSE 0
+            END) AS search_rank
+            FROM "BlogPosts"
+            LEFT JOIN authors ON "BlogPosts".author_id = authors.id
+            WHERE title ILIKE $1 OR content ILIKE $1
+            ORDER BY search_rank, "BlogPosts".id DESC
+            `, 
+            [`%${searchTerm}%`]
+        );
+            res.render("index.ejs", {
+                posts: result.rows,
+                searchQuery: searchTerm
+            });
     } catch (err) {
         console.error(err);
     };
@@ -202,6 +218,11 @@ app.get("/author/:id", async (req, res) => {
         res.redirect("/");
     }
 });
+
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});
+
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
