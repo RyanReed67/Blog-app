@@ -28,13 +28,20 @@
 <% posts.forEach((post) => { %>
     <div class="post">
         <p class="post-date">Posted on: <%= new Date(post.date).toLocaleDateString() %></p>
-        <h2><%= post.title %></h2>
+        <h2><%= post.title %>
+        <% if (post.is_new === 'TRUE') { %>
+                <span style="background-color: #f1c40f; color: #2c3e50; font-size: 0.5em; padding: 2px 8px; border-radius: 20px; vertical-align: middle; margin-left: 10px; font-weight: bold; text-transform: uppercase;">
+                    New!
+                </span>
+            <% } %>
+        </h2>
         <p class="post-author">
             By: <% if (post.author_name) {%>
                     <a href="/author/<%= post.author_id %>"><%= post.author_name || "Anonymous" %></a>
                 <% } else { %>
                     <span>Anonymous</span>
                 <% } %>
+                
         </p>
         <p>
             <%= post.content.substring(0, 150) %><%= post.content.length > 150 ? "..." : "" %>
