@@ -30,7 +30,11 @@
         <p class="post-date">Posted on: <%= new Date(post.date).toLocaleDateString() %></p>
         <h2><%= post.title %></h2>
         <p class="post-author">
-            By: <a href="/author/<%= post.author_id %>"><%= post.author_name || "Anonymous" %></a>
+            By: <% if (post.author_name) {%>
+                    <a href="/author/<%= post.author_id %>"><%= post.author_name || "Anonymous" %></a>
+                <% } else { %>
+                    <span>Anonymous</span>
+                <% } %>
         </p>
         <p>
             <%= post.content.substring(0, 150) %><%= post.content.length > 150 ? "..." : "" %>
