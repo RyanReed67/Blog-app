@@ -29,7 +29,11 @@ app.get("/", async (req, res) => {
     try {
         const postResult = await db.query(`
             SELECT "BlogPosts".*, authors.name AS author_name,
-            COUNT(comments.id) AS comment_count 
+            COUNT(comments.id) AS comment_count,
+                (CASE
+                WHEN "BlogPosts".date > NOW() - INTERVAL '24 hours' THEN 'TRUE'
+                ELSE 'False'
+                END) AS is_new 
             FROM "BlogPosts" 
             LEFT JOIN authors ON "BlogPosts".author_id = authors.id 
             LEFT JOIN comments ON "BlogPosts".id = comments.post_id
