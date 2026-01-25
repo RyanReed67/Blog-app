@@ -27,22 +27,35 @@
 
 <% posts.forEach((post) => { %>
     <div class="post">
-        <p class="post-date">Posted on: <%= new Date(post.date).toLocaleDateString() %></p>
-        <h2><%= post.title %>
-        <% if (post.is_new === 'TRUE') { %>
+        <p class="post-date">
+            Posted on: <%= new Date(post.date).toLocaleDateString() %> • 
+            <span style="color: #2ecc71; font-weight: bold;">
+                <% 
+                   const wordsPerMinute = 200; 
+                   const noOfWords = post.content.split(/\s+/).length; 
+                   const minutes = Math.ceil(noOfWords / wordsPerMinute); 
+                %>
+                ⏱️ <%= minutes %> min read
+            </span>
+        </p>
+
+        <h2>
+            <%= post.title %>
+            <% if (post.is_new === 'TRUE') { %>
                 <span style="background-color: #f1c40f; color: #2c3e50; font-size: 0.5em; padding: 2px 8px; border-radius: 20px; vertical-align: middle; margin-left: 10px; font-weight: bold; text-transform: uppercase;">
                     New!
                 </span>
             <% } %>
         </h2>
+
         <p class="post-author">
-            By: <% if (post.author_name) {%>
-                    <a href="/author/<%= post.author_id %>"><%= post.author_name || "Anonymous" %></a>
+            By: <% if (post.author_name) { %>
+                    <a href="/author/<%= post.author_id %>"><%= post.author_name %></a>
                 <% } else { %>
                     <span>Anonymous</span>
                 <% } %>
-                
         </p>
+
         <p>
             <%= post.content.substring(0, 150) %><%= post.content.length > 150 ? "..." : "" %>
         </p>
@@ -55,27 +68,24 @@
                 <button type="submit" class="btn-delete">Delete</button>
             </form>
 
-            <a href="/post/<%= post.id %>" class="btn-read">Read More</a>
-            <span class="comment-badge">
-            <%= post.comment_count %> <%= post.comment_count == 1 ? 'Comment' : 'Comments' %>
-        </span>
+            <a href="/post/<%= post.id %>" class="btn-read">
+                Read More 
+                <span class="comment-badge" style="background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 4px; margin-left: 5px;">
+                    <%= post.comment_count %>
+                </span>
+            </a>
         </div>
 
-        <div class="quick-comment">
-            <form action="/comment" method="POST">
+        <div class="quick-comment" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+            <form action="/comment" method="POST" style="display: flex; gap: 8px;">
                 <input type="hidden" name="postId" value="<%= post.id %>">
-                <div style="display: flex; gap: 8px;">
-                    <input type="text" name="authorName" placeholder="Your Name" required>
-                    
-                    <input type="text" name="commentComment" placeholder="Quick comment..." required>
-                    
-                    <button type="submit" class="btn-publish" style="padding: 6px 12px; font-size: 0.9em;">Post</button>
-                </div>
+                <input type="text" name="authorName" placeholder="Name" required class="quick-comment-input" style="flex: 1;">
+                <input type="text" name="commentComment" placeholder="Quick comment..." required class="quick-comment-input" style="flex: 2;">
+                <button type="submit" class="btn-publish" style="padding: 6px 12px; font-size: 0.9em;">Post</button>
             </form>
         </div>
-        </div>
+    </div>
 <% }) %>
-
 
 
 </body>
