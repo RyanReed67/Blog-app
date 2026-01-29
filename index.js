@@ -100,6 +100,16 @@ app.post("/login", passport.authenticate("local", {
     failureRedirect: "/login"
 }));
 
+app.get("/logout", (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      console.error("Logout error:", err);
+      return res.redirect("/");
+    }
+    res.redirect("/");
+  });
+});
+
 app.get("/", async (req, res) => {
     try {
         const postResult = await db.query(`
@@ -116,7 +126,10 @@ app.get("/", async (req, res) => {
             ORDER BY "BlogPosts".id DESC
         `);
 
-        res.render("index.ejs", { posts: postResult.rows });
+        res.render("index.ejs", { 
+            posts: postResult.rows,
+            user: req.user || null
+        });
     } catch (err) {
         console.error(err);
         res.send("Error");
@@ -298,10 +311,9 @@ app.get("/author/:id", async (req, res) => {
     }
 });
 
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-});
-
+app.get("/new", ensureAuthenticated, async (req, res) => {
+    res.render("new.ejs", { user: req.user});
+})
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
