@@ -7,44 +7,32 @@
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <div class="horizontal-container max-page-height">
-                <% if (locals.user) { %>
-                    <p>Welcome back, <strong><%= user.email %></strong>!</p>
-                    <a href="/logout" class="btn btn-delete">Logout</a>
-                <% } else { %>
-                    <h3>Login or Register</h3>
-                    <form action="/login" method="POST" style="margin-bottom: 10px;">
-                        <input type="email" name="username" placeholder="Email" required>
-                        <input type="password" name="password" placeholder="Password" required>
-                        <button type="submit" class="btn btn-search">Login</button>
-                    </form>
-                    <form action="/register" method="POST">
-                        <input type="email" name="email" placeholder="Email" required>
-                        <input type="password" name="password" placeholder="Password" required>
-                        <button type="submit" class="btn btn-publish">Register</button>
-                    </form>
-                <% } %>
-        <div style="width: 50%;">
-            <form action="/submit" method="POST">
-                <div class="horizontal-container">
-                    <input type="text" name="title" placeholder="Title" required>
-                    <button type="submit" class="btn btn-publish">Publish</button>
-                </div>
-                <input type="text" name="authorName" placeholder="Author's Name" required>
 
-                <textarea name="content" placeholder="Content" required></textarea>
-    
+<div class="sidebar">
+    <% if (user) { %> 
+        <div class="user-card">
+            <h2>Hello, <%= user.email %></h2>
+            <a href="/new" class="btn btn-publish">Create Post</a>
+            <a href="/logout" class="btn btn-delete">Logout</a>
+        </div>
+    <% } else { %>
+        <div class="auth-forms-wrapper">
+            <form action="/login" method="POST" class="auth-form">
+                <h3>Login</h3>
+                <input type="email" name="username" placeholder="Email" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn btn-publish">Login</button>
+            </form>
+            <form action="/register" method="POST" class="auth-form">
+                <h3>Register</h3>
+                <input type="email" name="email" placeholder="Email" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn btn-publish">Register</button>
             </form>
         </div>
-        <div style="width: 50%; height: 100%; overflow: auto;">
-            <form action="/search" method="GET" class="search-form">
-                <input type="text" name="query" placeholder="Search stories..." required>
-                <button type="submit" class="btn btn-search">Search</button>
-                <a href="/" class="btn btn-clear">Clear</a>
-            </form>
-
+    <% } %>
+</div>
 <hr>
-
 
 <% posts.forEach((post) => { %>
     <div class="post">
