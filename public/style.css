@@ -4,6 +4,47 @@
     padding: 0;
 }
 
+.actions {
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding-top: 15px;
+}
+
+.auth-container {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    border: 1px solid #ddd;
+}
+
+.auth-forms-wrapper {
+    display: flex;
+    gap: 20px; 
+    justify-content: space-between;
+}
+
+.auth-form {
+    flex: 1; 
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.auth-form h3 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.auth-form input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
 body {
     background-color: #f0f2f5;
     color: #333;
@@ -12,12 +53,8 @@ body {
     padding: 20px;
 }
 
-.actions {
-    border-top: 1px solid #eee;
-    display: flex;
-    gap: 12px;
-    justify-content: flex-end;
-    padding-top: 15px;
+.border {
+    border-left: 1px solid #ddd;
 }
 
 .btn {
@@ -239,6 +276,35 @@ input[type="text"], textarea {
     outline: none;
 }
 
+.post-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    margin-top: 2rem;
+}
+
+.post-form input[type="text"], 
+.post-form textarea {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit; /* Keeps font consistent */
+}
+
+.post-form textarea {
+    resize: vertical; /* Allows user to expand height but not width */
+    line-height: 1.6;
+}
+
+.post-form input:focus, 
+.post-form textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+}
+
 .search-form {
     background-color: #ffffff;
     border-radius: 12px;
@@ -257,6 +323,13 @@ input[type="text"], textarea {
     margin-bottom: 0;
 }
 
+.sidebar {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
 span {
     display: inline-block;
     max-width: 100%;
@@ -269,8 +342,32 @@ span {
     font-weight: bold;
 }
 
+.user-card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e0e0e0;
+    text-align: center;
+}
+
+.user-card h2 {
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+    font-size: 1.5rem;
+}
+
+.user-card p {
+    color: #7f8c8d;
+    margin-bottom: 1.5rem;
+}
+
 @media (max-width: 600px) {
     .actions {
+        flex-direction: column;
+    }
+
+    .auth-forms-wrapper {
         flex-direction: column;
     }
 
@@ -312,3 +409,4 @@ span {
         gap: 10px;
     }
 }
+
