@@ -1,9 +1,14 @@
 import express from "express";
 import bodyParser from "body-parser";
 import pg from "pg";
+import session from "express-session";
+import passport from "passport";
+import { Strategy } from "passport-local";
+import bcrypt from "bcrypt";
 
 const app = express();
 const port = 3000;
+const saltRounds = 10;
 
 const db = new pg.Client({
   user: "postgres",
@@ -13,6 +18,23 @@ const db = new pg.Client({
   port: 5432,
 });
 db.connect();
+
+app.use(session({
+    secret: "TOPSECRETWORD", 
+    resave: false,
+    saveUninitialized: true,
+    cookie: { maxAge: 1000 * 60 * 60 * 24 } 
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+function ensureAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next(); 
+    }
+    res.redirect("/"); 
+}
 
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true}));
@@ -24,6 +46,59 @@ async function loadPosts() {
     console.log(result.rows);
     return result.rows;
 }
+
+app.post("/register", async (req, res) => {
+    const { email, password } = req.body;
+    try {
+        const checkResult = await db.query("SELECT * FROM users WHERE email = $1", [email]);
+        if (checkResult.rows.length > 0) {
+            res.send("Email already exists. Try logging in.");
+        } else {
+            bcrypt.hash(password, saltRounds, async (err, hash) => {
+                if (err) console.error(err);
+                const result = await db.query(
+                    "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING *",
+                    [email, hash]
+                );
+                const user = result.rows[0];
+                req.login(user, (err) => {
+                    res.redirect("/");
+                });
+            });
+        }
+    } catch (err) { console.error(err); }
+});
+
+passport.use(new Strategy(async (username, password, cb) => {
+    try {
+        const result = await db.query('SELECT * FROM users WHERE email = $1', [username]);
+        if (result.rows.length > 0) {
+            const user = result.rows[0];
+            const storedHash = user.password;
+            bcrypt.compare(password, storedHash, (err, isMatch) => {
+                if (err){
+                    return cb(err);
+                } else if (isMatch) {
+                    return cb(null, user);
+                } else {
+                    return cb(null, false);
+                }
+            });
+        } else {
+            return cb("User not found");
+        }
+    } catch (err) {
+        return cb(err);
+    }
+}));
+
+passport.serializeUser((user, cb) => cb(null, user));
+passport.deserializeUser((user, cb) => cb(null, user));
+
+app.post("/login", passport.authenticate("local", {
+    successRedirect: "/",
+    failureRedirect: "/login"
+}));
 
 app.get("/", async (req, res) => {
     try {
@@ -48,7 +123,7 @@ app.get("/", async (req, res) => {
     }
 });
 
-app.post("/submit", async (req, res) => {
+app.post("/submit", ensureAuthenticated, async (req, res) => {
     const { title, content, authorName } = req.body;
 
     try {
@@ -125,7 +200,7 @@ app.get("/edit/:id", async (req, res) => {
     }
 });
 
-app.post("/update", async (req, res) => {
+app.post("/update", ensureAuthenticated, async (req, res) => {
     const { id, title, content } = req.body;
 
     try {
@@ -140,7 +215,7 @@ app.post("/update", async (req, res) => {
     }
 });
 
-app.post("/delete", async (req, res) => {
+app.post("/delete", ensureAuthenticated, async (req, res) => {
     const idToDelete = req.body.id;
 
     try {
