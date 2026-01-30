@@ -5,10 +5,7 @@ import session from "express-session";
 import passport from "passport";
 import { Strategy } from "passport-local";
 import bcrypt from "bcrypt";
-<<<<<<< HEAD
 import env from "dotenv";
-=======
->>>>>>> b41799e22587fa49448f71360d51474ee8fa074c
 
 env.config(); 
 const app = express();
@@ -16,28 +13,16 @@ const port = 3000;
 const saltRounds = 10;
 
 const db = new pg.Client({
-<<<<<<< HEAD
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
-=======
-  user: "postgres",
-  host: "localhost",
-  database: "Blog",
-  password: "",
-  port: 5432,
->>>>>>> b41799e22587fa49448f71360d51474ee8fa074c
 });
 db.connect();
 
 app.use(session({
-<<<<<<< HEAD
     secret: process.env.SESSION_SECRET, 
-=======
-    secret: "TOPSECRETWORD", 
->>>>>>> b41799e22587fa49448f71360d51474ee8fa074c
     resave: false,
     saveUninitialized: true,
     cookie: { maxAge: 1000 * 60 * 60 * 24 } 
@@ -67,22 +52,14 @@ async function loadPosts() {
 app.post("/register", async (req, res) => {
     const { email, password } = req.body;
     try {
-<<<<<<< HEAD
         const checkResult = await db.query('SELECT * FROM "Users" WHERE email = $1', [email]);
-=======
-        const checkResult = await db.query("SELECT * FROM users WHERE email = $1", [email]);
->>>>>>> b41799e22587fa49448f71360d51474ee8fa074c
         if (checkResult.rows.length > 0) {
             res.send("Email already exists. Try logging in.");
         } else {
             bcrypt.hash(password, saltRounds, async (err, hash) => {
                 if (err) console.error(err);
                 const result = await db.query(
-<<<<<<< HEAD
                     'INSERT INTO "Users" (email, password) VALUES ($1, $2) RETURNING *',
-=======
-                    "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING *",
->>>>>>> b41799e22587fa49448f71360d51474ee8fa074c
                     [email, hash]
                 );
                 const user = result.rows[0];
@@ -96,11 +73,7 @@ app.post("/register", async (req, res) => {
 
 passport.use(new Strategy(async (username, password, cb) => {
     try {
-<<<<<<< HEAD
         const result = await db.query('SELECT * FROM "Users" WHERE email = $1', [username]);
-=======
-        const result = await db.query('SELECT * FROM users WHERE email = $1', [username]);
->>>>>>> b41799e22587fa49448f71360d51474ee8fa074c
         if (result.rows.length > 0) {
             const user = result.rows[0];
             const storedHash = user.password;
@@ -142,27 +115,16 @@ app.get("/logout", (req, res) => {
 app.get("/", async (req, res) => {
     try {
         const postResult = await db.query(`
-<<<<<<< HEAD
             SELECT "BlogPosts".*, "Authors".name AS author_name,
             COUNT("Comments".id) AS comment_count,
-=======
-            SELECT "BlogPosts".*, authors.name AS author_name,
-            COUNT(comments.id) AS comment_count,
->>>>>>> b41799e22587fa49448f71360d51474ee8fa074c
                 (CASE
                 WHEN "BlogPosts".date > NOW() - INTERVAL '24 hours' THEN 'TRUE'
                 ELSE 'False'
                 END) AS is_new 
             FROM "BlogPosts" 
-<<<<<<< HEAD
             LEFT JOIN "Authors" ON "BlogPosts".author_id = "Authors".id 
             LEFT JOIN "Comments" ON "BlogPosts".id = "Comments".post_id
             GROUP BY "BlogPosts".id, "Authors".name
-=======
-            LEFT JOIN authors ON "BlogPosts".author_id = authors.id 
-            LEFT JOIN comments ON "BlogPosts".id = comments.post_id
-            GROUP BY "BlogPosts".id, authors.name
->>>>>>> b41799e22587fa49448f71360d51474ee8fa074c
             ORDER BY "BlogPosts".id DESC
         `);
 
@@ -180,22 +142,14 @@ app.post("/submit", ensureAuthenticated, async (req, res) => {
     const { title, content, authorName } = req.body;
 
     try {
-<<<<<<< HEAD
         let authorResult = await db.query("SELECT id FROM \"Authors\" WHERE name = $1", [authorName]);
-=======
-        let authorResult = await db.query("SELECT id FROM authors WHERE name = $1", [authorName]);
->>>>>>> b41799e22587fa49448f71360d51474ee8fa074c
         let authorId;
 
         if (authorResult.rows.length > 0) {
             authorId = authorResult.rows[0].id;
         } else {
             const newAuthor = await db.query(
-<<<<<<< HEAD
                 "INSERT INTO \"Authors\"(name) VALUES ($1) RETURNING id", 
-=======
-                "INSERT INTO authors (name) VALUES ($1) RETURNING id", 
->>>>>>> b41799e22587fa49448f71360d51474ee8fa074c
                 [authorName]
             );
             authorId = newAuthor.rows[0].id;
@@ -219,22 +173,14 @@ app.get("/search", async (req, res) => {
         const result = await db.query(`
             SELECT
             "BlogPosts".*,
-<<<<<<< HEAD
             "Authors".name AS author_name,
-=======
-            authors.name AS author_name,
->>>>>>> b41799e22587fa49448f71360d51474ee8fa074c
             (CASE 
             WHEN title ILIKE $1 THEN 2
             WHEN content ILIKE $1 THEN 1
             ELSE 0
             END) AS search_rank
             FROM "BlogPosts"
-<<<<<<< HEAD
             LEFT JOIN "Authors" ON "BlogPosts".author_id = "Authors".id
-=======
-            LEFT JOIN authors ON "BlogPosts".author_id = authors.id
->>>>>>> b41799e22587fa49448f71360d51474ee8fa074c
             WHERE title ILIKE $1 OR content ILIKE $1
             ORDER BY search_rank, "BlogPosts".id DESC
             `, 
@@ -300,24 +246,14 @@ app.get("/post/:id", async (req, res) => {
     const id = req.params.id;
     try {
         const result = await db.query(`
-<<<<<<< HEAD
             SELECT "BlogPosts".*, "Authors".name AS author_name
             FROM "BlogPosts"
             LEFT JOIN "Authors" ON "BlogPosts".author_id = "Authors".id
-=======
-            SELECT "BlogPosts".*, authors.name AS author_name
-            FROM "BlogPosts"
-            LEFT JOIN authors ON "BlogPosts".author_id = authors.id
->>>>>>> b41799e22587fa49448f71360d51474ee8fa074c
             WHERE "BlogPosts".id = $1
             `, [id]
             );
             const commentsResult = await db.query(`
-<<<<<<< HEAD
                 SELECT * FROM "Comments" WHERE post_id = $1 ORDER BY id DESC`,
-=======
-                SELECT * FROM comments WHERE post_id = $1 ORDER BY id DESC`,
->>>>>>> b41799e22587fa49448f71360d51474ee8fa074c
                 [id]
             );
         const post = result.rows[0];
@@ -339,11 +275,7 @@ app.post("/comment", async (req, res) => {
     const { postId, authorName, commentComment } = req.body;
     try {
         await db.query(
-<<<<<<< HEAD
             'INSERT INTO "Comments" (post_id, author_name, comment_text) VALUES ($1, $2, $3)',
-=======
-            'INSERT INTO comments (post_id, author_name, comment_text) VALUES ($1, $2, $3)',
->>>>>>> b41799e22587fa49448f71360d51474ee8fa074c
             [postId, authorName, commentComment]
         );
         res.redirect(`/post/${postId}`); 
@@ -358,26 +290,15 @@ app.get("/author/:id", async (req, res) => {
 
     try {
         const authorInfo = await db.query(
-<<<<<<< HEAD
             'SELECT * FROM "Authors" WHERE id = $1',
-=======
-            'SELECT * FROM authors WHERE id = $1',
->>>>>>> b41799e22587fa49448f71360d51474ee8fa074c
             [authorId]
         );
 
         const postsResults = await db.query(
-<<<<<<< HEAD
             `SELECT "BlogPosts".*, "Authors".name AS author_name
             FROM "BlogPosts"
             JOIN "Authors" ON "BlogPosts".author_id = "Authors".id
             WHERE "Authors".id = $1
-=======
-            `SELECT "BlogPosts".*, authors.name AS author_name
-            FROM "BlogPosts"
-            JOIN authors ON "BlogPosts".author_id = authors.id
-            WHERE authors.id = $1
->>>>>>> b41799e22587fa49448f71360d51474ee8fa074c
             ORDER BY "BlogPosts".id DESC`,
             [authorId]
         );
@@ -399,4 +320,5 @@ app.get("/new", ensureAuthenticated, async (req, res) => {
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
+
 
