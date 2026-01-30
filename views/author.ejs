@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <title>Posts by <%= authorName %></title>
+</head>
+<body>
+    
+    <div class="container">
+        <h1>All stories by <%= authorName %></h1>
+        <a href="/">← Back To Home</a>
+        <hr>
+        <% if (posts.length > 0) { %>
+        <% posts.forEach((post) => { %>
+            <div class="post">
+                <h2><%= post.title %></h2>
+                <p><%= post.content %></p>
+            </div>
+        <% }) %>
+        <% } else { %>
+            <p>No posts from this author yet.</p>
+        <% } %>
+        </div>
+    
+</body>
+</html>

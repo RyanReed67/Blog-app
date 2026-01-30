@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     <h1>Edit Post</h1>
 <form action="/update" method="POST">
-    <input type="hidden" name="index" value="<%= index %>">
+    <input type="hidden" name="id" value="<%= post.id %>">
     <input type="text" name="title" value="<%= post.title %>" required>
     <textarea name="content" required><%= post.content %></textarea>
-    <button type="submit">Save Changes</button>
-    <a href="/">Cancel</a>
+    <button type="submit" class="btn btn-publish">Save Changes</button>
+    <a href="/" class="btn btn-delete">Cancel</a>
 </form>
 </body>
 </html>

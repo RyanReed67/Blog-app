@@ -7,29 +7,100 @@
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <form action="/submit" method="POST">
-    <input type="text" name="title" placeholder="Title" required>
-    <textarea name="content" placeholder="Content" required></textarea>
-    <button type="submit" class="btn-publish">Publish</button>
-</form>
 
-<hr>
-
-<% posts.forEach((post, index) => { %>
-    <div class="post">
-        <h2><%= post.title %></h2>
-        <p><%= post.content %></p>
-        
-        <div class="actions">
-            <a href="/edit/<%= index %>" class="btn-edit">Edit</a>
-
-            <form action="/delete" method="POST" style="display:inline;">
-                <input type="hidden" name="index" value="<%= index %>">
-                <button type="submit" class="btn-delete">Delete</button>
+<div class="sidebar">
+    <% if (user) { %> 
+        <div class="user-card">
+            <h2>Hello, <%= user.email %></h2>
+            <a href="/new" class="btn btn-publish">Create Post</a>
+            <a href="/logout" class="btn btn-delete">Logout</a>
+        </div>
+    <% } else { %>
+        <div class="auth-forms-wrapper">
+            <form action="/login" method="POST" class="auth-form">
+                <h3>Login</h3>
+                <input type="email" name="username" placeholder="Email" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn btn-publish">Login</button>
+            </form>
+            <form action="/register" method="POST" class="auth-form">
+                <h3>Register</h3>
+                <input type="email" name="email" placeholder="Email" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn btn-publish">Register</button>
             </form>
         </div>
+    <% } %>
+</div>
+<hr>
+
+<% posts.forEach((post) => { %>
+    <div class="post">
+        <div class="horizontal-container">
+        <span>
+            Posted on: <%= new Date(post.date).toLocaleDateString() %> • 
+        </span>
+            <span class="time">
+                <% 
+                   const wordsPerMinute = 200; 
+                   const noOfWords = post.content.split(/\s+/).length; 
+                   const minutes = Math.ceil(noOfWords / wordsPerMinute); 
+                %>
+                ⏱️ <%= minutes %> min read
+            </span>
+                <span class="post-author">
+            By: <% if (post.author_name) { %>
+                    <a href="/author/<%= post.author_id %>"><%= post.author_name %></a>
+                <% } else { %>
+                    Anonymous
+                <% } %>
+                </span>
+         </div>
+            <h2>
+                <%= post.title %>
+                <% if (post.is_new === 'TRUE') { %>
+                    <span class="new-badge">
+                        New!
+                    </span>
+                    <% } %>
+            </h2>
+                <span>
+                    <%= post.content.substring(0, 150) %><%= post.content.length > 150 ? "..." : "" %>
+                </span>    
+
+        <div class="actions">  
+            <a href="/edit/<%= post.id %>" class="btn btn-edit">Edit</a>
+            
+            <form action="/delete" method="POST" >
+                <input type="hidden" name="id" value="<%= post.id %>">
+                <button type="submit" class="btn btn-delete">Delete</button>
+            </form>
+
+            <a href="/post/<%= post.id %>" class="btn btn-read">
+                Read More 
+                <span class="comment-badge">
+                    <%= post.comment_count %>
+                </span>
+            </a>
+        </div>
+
+<div class="quick-comment">
+    <form action="/comment" method="POST">
+        <input type="hidden" name="postId" value="<%= post.id %>">
+        
+        <input type="text" name="authorName" placeholder="Name" required 
+               class="quick-comment-input">
+        
+        <input type="text" name="commentComment" placeholder="Quick comment..." required 
+               class="quick-comment-input">
+        
+        <button type="submit" class="btn btn-publish">Post</button>
+    </form>
+</div>
     </div>
 <% }) %>
+</div>
+</div>
 
 </body>
 </html>

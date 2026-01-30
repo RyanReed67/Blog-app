@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="btn btn-clear">← Back to Posts</a>
+        
+        <article class="post" style="margin-top: 20px;">
+            <p class="post-date">Posted on: <%= new Date(post.date).toLocaleDateString() %></p>
+            <h1><%= post.title %></h1>
+            <p><%= post.content %></p>
+        </article>
+
+        <hr>
+        <section class="comment-section">
+            <h3>Leave a Comment</h3>
+            <form action="/comment" method="POST">
+                <input type="hidden" name="postId" value="<%= post.id %>">
+                
+                <input type="text" name="authorName" placeholder="Your Name" required 
+                       style="width: 100%; padding: 10px; margin-bottom: 10px;">
+                
+                <textarea name="commentText" placeholder="What are your thoughts?" required 
+                          style="width: 100%; padding: 10px; height: 80px;"></textarea>
+                
+                <button type="submit" class="btn btn-publish">Post Comment</button>
+            </form>
+
+            <div class="comments-display" style="margin-top: 30px;">
+                <h4>Recent Comments</h4>
+                <% if (comments.length > 0) { %>
+                    <% comments.forEach(comment => { %>
+                        <div class="comment-bubble" style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 5px solid #3498db;">
+                            <strong><%= comment.author_name %></strong>
+                            <small style="color: gray; display: block;">
+                                <%= new Date(comment.created_at).toLocaleDateString() %>
+                            </small>
+                            <p style="margin-top: 10px;"><%= comment.comment_text %></p>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <p>No comments yet. Be the first to start the conversation!</p>
+                <% } %>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
