@@ -6,11 +6,13 @@ import passport from "passport";
 import { Strategy } from "passport-local";
 import bcrypt from "bcrypt";
 import env from "dotenv";
+import multer from "multer";
 
 env.config(); 
 const app = express();
 const port = 3000;
 const saltRounds = 10;
+const upload = multer({ dest: 'public/uploads/' });
 
 const db = new pg.Client({
   user: process.env.DB_USER,
@@ -138,8 +140,9 @@ app.get("/", async (req, res) => {
     }
 });
 
-app.post("/submit", ensureAuthenticated, async (req, res) => {
+app.post("/submit", ensureAuthenticated, upload.single('image'), async (req, res) => {
     const { title, content, authorName } = req.body;
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
     try {
         let authorResult = await db.query("SELECT id FROM \"Authors\" WHERE name = $1", [authorName]);
@@ -155,8 +158,8 @@ app.post("/submit", ensureAuthenticated, async (req, res) => {
             authorId = newAuthor.rows[0].id;
         }
         await db.query(
-            'INSERT INTO "BlogPosts" (title, content, author_id) VALUES ($1, $2, $3)',
-            [title, content, authorId]
+            'INSERT INTO "BlogPosts" (title, content, author_id, image_path) VALUES ($1, $2, $3, $4)',
+            [title, content, authorId, imagePath]
         );
 
         res.redirect("/");
