@@ -225,6 +225,16 @@ input[type="text"], textarea {
     margin-bottom: 10px;
 }
 
+.blog-img {
+    width: 100%;           
+    max-width: 600px;      
+    height: 300px;         
+    object-fit: cover;      
+    border-radius: 8px;     
+    margin: 15px auto;     
+    display: block;         
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+}
 .post span {
     display: inline;
     line-height: 1.6;
@@ -409,4 +419,5 @@ span {
         gap: 10px;
     }
 }
+
 
