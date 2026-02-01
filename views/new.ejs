@@ -11,9 +11,11 @@
         <h1>Create a New Story</h1>
         <a href="/">← Back to Feed </a>
             <hr>
-            <form action="/submit" method="POST" class="post-form">
+            <form action="/submit" method="POST" class="post-form" enctype="multipart/form-data">
                 <input type="text" name="title" placeholder="Title" required>
                 <input type="text" name="authorName" placeholder="Author's Name" required>
+                <label for="post-image" style="display: block; margin-top: 10px;">Cover Image (Optional):</label>
+                <input type="file" id="post-image" name="image" accept="image/*">
                 <textarea name="content" placeholder="Write Your Story Here..." required></textarea>
                 <button type="submit" class="btn btn-publish">Publish Story</button>
             </form>
