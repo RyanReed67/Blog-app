@@ -141,7 +141,7 @@ app.get("/", async (req, res) => {
 });
 
 app.post("/submit", ensureAuthenticated, upload.single('image'), async (req, res) => {
-    const { title, content, authorName } = req.body;
+    const { title, content, authorName, tags } = req.body;
     const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
     try {
@@ -161,6 +161,13 @@ app.post("/submit", ensureAuthenticated, upload.single('image'), async (req, res
             'INSERT INTO "BlogPosts" (title, content, author_id, image_path) VALUES ($1, $2, $3, $4)',
             [title, content, authorId, imagePath]
         );
+        if (Array.isArray(tags)) {
+            let tagResult = await db.query(`
+                INSERT INTO "Tags" (name) VALUES ($1) 
+                ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name RETURNING id`, [tagName]);
+            let tagId = tagResult.rows[0].id;
+            await db.query('INSERT INTO "Post_Tags" (post_id, tag_id) VALUES ($1, $2)', [postid, tagId]);
+         }
 
         res.redirect("/");
     } catch (err) {
@@ -323,5 +330,4 @@ app.get("/new", ensureAuthenticated, async (req, res) => {
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
-
 
