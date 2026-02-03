@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <title>Create New Post</title>
 </head>
 <body>
@@ -14,12 +15,30 @@
             <form action="/submit" method="POST" class="post-form" enctype="multipart/form-data">
                 <input type="text" name="title" placeholder="Title" required>
                 <input type="text" name="authorName" placeholder="Author's Name" required>
+                <label for="tags" style="display: block; margin-top: 10px;">Tags:</label>
+                <select id="tags" name="tags" class="form-control" multiple="multiple" style="width: 100%">
+                <option value="Tech">Tech</option>
+                <option value="Travel">Travel</option>
+                <option value="Lifestyle">Lifestyle</option>
+                </select>
                 <label for="post-image" style="display: block; margin-top: 10px;">Cover Image (Optional):</label>
                 <input type="file" id="post-image" name="image" accept="image/*">
                 <textarea name="content" placeholder="Write Your Story Here..." required></textarea>
                 <button type="submit" class="btn btn-publish">Publish Story</button>
             </form>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#tags').select2({
+                placeholder: "Select or type tags...",
+                tags: true,
+                tokenSeparators: [',']
+            });
+        });
+    </script>
     
 </body>
 </html>
