@@ -122,10 +122,13 @@ app.get("/", async (req, res) => {
                 (CASE
                 WHEN "BlogPosts".date > NOW() - INTERVAL '24 hours' THEN 'TRUE'
                 ELSE 'False'
-                END) AS is_new 
+                END) AS is_new, 
+                ARRAY_AGG("Tags".name) FILTER (WHERE "Tags".name IS NOT NULL) AS tags
             FROM "BlogPosts" 
             LEFT JOIN "Authors" ON "BlogPosts".author_id = "Authors".id 
             LEFT JOIN "Comments" ON "BlogPosts".id = "Comments".post_id
+            LEFT JOIN "Post_Tags" ON "BlogPosts".id = "Post_Tags".post_id
+            LEFT JOIN "Tags" ON "Post_Tags".tag_id = "Tags".id
             GROUP BY "BlogPosts".id, "Authors".name
             ORDER BY "BlogPosts".id DESC
         `);
