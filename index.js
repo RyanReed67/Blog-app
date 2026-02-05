@@ -141,6 +141,7 @@ app.get("/", async (req, res) => {
 });
 
 app.post("/submit", ensureAuthenticated, upload.single('image'), async (req, res) => {
+    console.log("New Post Data:", req.body);
     const { title, content, authorName, tags } = req.body;
     const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
@@ -157,22 +158,32 @@ app.post("/submit", ensureAuthenticated, upload.single('image'), async (req, res
             );
             authorId = newAuthor.rows[0].id;
         }
-        await db.query(
-            'INSERT INTO "BlogPosts" (title, content, author_id, image_path) VALUES ($1, $2, $3, $4)',
+        const postResult = await db.query(
+            'INSERT INTO "BlogPosts" (title, content, author_id, image_path) VALUES ($1, $2, $3, $4) RETURNING id',
             [title, content, authorId, imagePath]
         );
-        if (Array.isArray(tags)) {
-            let tagResult = await db.query(`
-                INSERT INTO "Tags" (name) VALUES ($1) 
-                ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name RETURNING id`, [tagName]);
-            let tagId = tagResult.rows[0].id;
-            await db.query('INSERT INTO "Post_Tags" (post_id, tag_id) VALUES ($1, $2)', [postid, tagId]);
-         }
+        const newPostId = postResult.rows[0].id;
+        if (tags) {
+            const tagsArray = Array.isArray(tags) ? tags : [tags];
+
+            for (let tagName of tagsArray) {
+                let tagResult = await db.query(`
+                    INSERT INTO "Tags" (name) VALUES ($1) 
+                    ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name RETURNING id`, 
+                    [tagName]
+                );
+                let tagId = tagResult.rows[0].id;
+                await db.query(
+                    'INSERT INTO "Post_Tags" (post_id, tag_id) VALUES ($1, $2)', 
+                    [newPostId, tagId]
+                );
+            }
+        }
 
         res.redirect("/");
     } catch (err) {
         console.error(err);
-        res.send("Error submitting post.");
+        res.status(500).send("Error submitting post.");
     }
 });
 
@@ -205,23 +216,74 @@ app.get("/search", async (req, res) => {
     };
 });
 
-app.get("/edit/:id", async (req, res) => {
+app.get("/edit/:id", ensureAuthenticated, async (req, res) => {
     const id = req.params.id;
 
     try {
         const result = await db.query('SELECT * FROM "BlogPosts" WHERE id = $1', [id]);
         const postToEdit = result.rows[0];
 
+        const tagsResult = await db.query(
+            'SELECT t.name FROM "Tags" t JOIN "Post_Tags" pt ON t.id = pt.tag_id WHERE pt.post_id = $1',
+            [id]
+        );
+        const currentTags = tagsResult.rows.map(row => row.name);
+
         if (postToEdit) {
             res.render("edit.ejs", {
-                post: postToEdit
+                post: postToEdit,
+                currentTags: currentTags
             });
         } else {
             res.redirect("/");
         }
     } catch (err) {
-        console.error(err);
+        console.error("Error loading edit page:", err);
         res.redirect("/");
+    }
+});
+
+app.post("/edit/:id", ensureAuthenticated, upload.single('image'), async (req, res) => {
+    console.log("Form Data Received:", req.body);
+    const id = req.params.id;
+    const { title, content, tags } = req.body;
+    const newImagePath = req.file ? `/uploads/${req.file.filename}` : null;
+
+    try {
+
+        if (newImagePath) {
+            await db.query(
+                'UPDATE "BlogPosts" SET title = $1, content = $2, image_path = $3 WHERE id = $4',
+                [title, content, newImagePath, id]
+            );
+        } else {
+            await db.query(
+                'UPDATE "BlogPosts" SET title = $1, content = $2 WHERE id = $3',
+                [title, content, id]
+            );
+        }
+
+        await db.query('DELETE FROM "Post_Tags" WHERE post_id = $1', [id]);
+
+        if (tags) {
+            await db.query('DELETE FROM "Post_Tags" WHERE post_id = $1', [id]);
+            const tagsArray = Array.isArray(tags) ? tags : [tags];
+            for (let tagName of tagsArray) {
+                let tagResult = await db.query(`
+                    INSERT INTO "Tags" (name) VALUES ($1)
+                    ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name RETURNING id`, 
+                    [tagName]
+                );
+
+                let tagId = tagResult.rows[0].id;
+                
+                await db.query('INSERT INTO "Post_Tags" (post_id, tag_id) VALUES ($1, $2)', [id, tagId]); 
+            }
+        }
+        res.redirect("/");
+    } catch (err) {
+        console.error("Error saving edits:", err);
+        res.status(500).send("Error saving your changes.");
     }
 });
 
