@@ -73,6 +73,14 @@
                     <%= post.content.substring(0, 150) %><%= post.content.length > 150 ? "..." : "" %>
                 </span>    
 
+                <div class="post-tags">
+                     <% if (post.tags && post.tags.length > 0) { %>
+                        <% post.tags.forEach(tag => { %>
+                            <span class="tag-badge"><%= tag %></span>
+                        <% }) %>
+                     <% } %>
+                </div>
+
         <div class="actions">  
             <a href="/edit/<%= post.id %>" class="btn btn-edit">Edit</a>
             
