@@ -30,14 +30,24 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('#tags').select2({
-                placeholder: "Select or type tags...",
-                tags: true,
-                tokenSeparators: [',']
-            });
+<select id="tags" name="tags" class="form-control" multiple="multiple" style="width: 100%">
+    <option value="Tech">Tech</option>
+    <option value="Travel">Travel</option>
+    <option value="Lifestyle">Lifestyle</option>
+</select>
+
+<script>
+    $(document).ready(function() {
+        $('#tags').select2({
+            placeholder: "Select or type tags...",
+            tags: true,
+            tokenSeparators: [',', ' ']
         });
+    });
+</script>
+</body>
+</html>
+
     </script>
     
 </body>
