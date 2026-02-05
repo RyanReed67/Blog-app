@@ -5,15 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 </head>
 <body>
     <h1>Edit Post</h1>
-<form action="/update" method="POST">
+<form action="/edit/<%= post.id %>" method="POST" enctype="multipart/form-data">
     <input type="hidden" name="id" value="<%= post.id %>">
     <input type="text" name="title" value="<%= post.title %>" required>
+<label for="tags">Tags:</label>
+<select id="tags" name="tags" class="form-control" multiple="multiple" style="width: 100%">
+    <% const options = ["Tech", "Travel", "Lifestyle", "News"]; %>
+    
+    <% options.forEach(option => { %>
+        <option value="<%= option %>" <%= currentTags.includes(option) ? 'selected' : '' %>>
+            <%= option %>
+        </option>
+    <% }) %>
+
+    <% currentTags.forEach(tag => { %>
+        <% if (!options.includes(tag)) { %>
+            <option value="<%= tag %>" selected><%= tag %></option>
+        <% } %>
+    <% }) %>
+</select>
     <textarea name="content" required><%= post.content %></textarea>
     <button type="submit" class="btn btn-publish">Save Changes</button>
     <a href="/" class="btn btn-delete">Cancel</a>
 </form>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#tags').select2({
+            tags: true,
+            tokenSeparators: [',', ' '],
+            selectOnClose: true  
+        });
+    });
+</script>
 </body>
 </html>
