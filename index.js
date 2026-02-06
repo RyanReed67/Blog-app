@@ -118,7 +118,7 @@ app.get("/", async (req, res) => {
     try {
         const postResult = await db.query(`
             SELECT "BlogPosts".*, "Authors".name AS author_name,
-            COUNT("Comments".id) AS comment_count,
+            COUNT(DISTINCT "Comments".id) AS comment_count,
                 (CASE
                 WHEN "BlogPosts".date > NOW() - INTERVAL '24 hours' THEN 'TRUE'
                 ELSE 'False'
